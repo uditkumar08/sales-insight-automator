@@ -1,12 +1,10 @@
-import pandas as pd
 import json
 
 def handler(request):
-
     if request.method != "POST":
         return {
             "statusCode": 405,
-            "body": "Method not allowed"
+            "body": json.dumps({"error": "Method not allowed"})
         }
 
     return {
