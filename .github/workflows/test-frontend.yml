@@ -1,0 +1,49 @@
+name: Test Frontend
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'frontend/**'
+      - '.github/workflows/test-frontend.yml'
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'frontend/**'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: 'frontend/package-lock.json'
+      
+      - name: Install dependencies
+        working-directory: frontend
+        run: npm ci
+      
+      - name: Lint code
+        working-directory: frontend
+        run: npm run lint
+        continue-on-error: true
+      
+      - name: Build for production
+        working-directory: frontend
+        run: npm run build
+      
+      - name: Check build artifacts
+        run: |
+          if [ -d "frontend/dist" ]; then
+            echo "✓ Build successful - dist folder created"
+            ls -la frontend/dist/
+          else
+            echo "✗ Build failed - no dist folder found"
+            exit 1
+          fi

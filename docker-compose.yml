@@ -1,11 +1,47 @@
+version: '3.8'
+
 services:
   backend:
     build:
       context: ./backend
       dockerfile: DockerFile
+    container_name: sales-automator-backend
     ports:
       - "8000:8000"
     volumes:
       - ./backend:/app
+    environment:
+      - PYTHONUNBUFFERED=1
+      - PYTHONDONTWRITEBYTECODE=1
     env_file:
       - .env
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+
+  # Optional: Add frontend service for development
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    container_name: sales-automator-frontend
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app
+    environment:
+      - VITE_API_URL=http://backend:8000
+    depends_on:
+      - backend
+    profiles:
+      - dev  # Run with: docker-compose --profile dev up
+
+volumes:
+  backend_data:
+
+networks:
+  default:
+    name: sales-automator-network
