@@ -70,3 +70,6 @@ htmlcov/
 .venv/
 venv/
 env/
+
+package.json
+package-lock.json
